@@ -20,7 +20,7 @@ public class App {
     @Autowired
     private UserDOMapper userDOMapper;
 
-    @RequestMapping("/home")
+    @RequestMapping("/")
     public String home(){
         UserDO userDO = userDOMapper.selectByPrimaryKey(1);
         if (userDO == null){
@@ -29,9 +29,10 @@ public class App {
             return userDO.getName();
         }
     }
+
+
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
         SpringApplication.run(App.class,args);
     }
 }
