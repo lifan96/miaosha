@@ -16,6 +16,7 @@ import java.util.Random;
 
 @Controller("user")
 @RequestMapping("/user")
+@CrossOrigin
 public class UserController extends BaseController{
 
     @Autowired
@@ -25,7 +26,7 @@ public class UserController extends BaseController{
     private HttpServletRequest httpServletRequest;
 
     //用户获取otp短信接口
-    @RequestMapping("/getotp")
+    @RequestMapping(value = "/getotp",method = {RequestMethod.POST},consumes = {CONTENT_TYPR_FORMED})
     @ResponseBody
     public  CommonReturnType getOtp(@RequestParam(name="telphone")String telphone){
 
