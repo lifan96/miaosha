@@ -3,20 +3,17 @@ package cn.lifan.controller;
 
 import cn.lifan.controller.viewobject.UserVO;
 import cn.lifan.error.BusinessException;
-import cn.lifan.error.EmBusinessError;
 import cn.lifan.response.CommonReturnType;
 import cn.lifan.service.UserService;
 import cn.lifan.service.model.UserModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller("user")
 @RequestMapping("/user")
-public class UserController {
+public class UserController extends BaseController{
 
     @Autowired
     private UserService userService;
@@ -30,7 +27,8 @@ public class UserController {
 
         //若获取的对应用户信息不存在
         if(userModel == null){
-            throw  new BusinessException(EmBusinessError.USER_NOT_EXIT);
+            userModel.setEncrptPassword("123");
+            //throw  new BusinessException(EmBusinessError.USER_NOT_EXIT);
         }
 
         //将核心领域model对象转化为可供UI使用的viewobject
