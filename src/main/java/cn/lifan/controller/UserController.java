@@ -2,6 +2,8 @@ package cn.lifan.controller;
 
 
 import cn.lifan.controller.viewobject.UserVO;
+import cn.lifan.error.BusinessException;
+import cn.lifan.error.EmBusinessError;
 import cn.lifan.response.CommonReturnType;
 import cn.lifan.service.UserService;
 import cn.lifan.service.model.UserModel;
@@ -21,9 +23,16 @@ public class UserController {
 
     @RequestMapping("/get")
     @ResponseBody
-    public CommonReturnType getUser(@RequestParam(name="id") Integer id){
+    public CommonReturnType getUser(@RequestParam(name="id") Integer id) throws BusinessException {
         //调用service服务获取对应id的用户对象比返回给前端
         UserModel userModel = userService.getUserById(id);
+
+
+        //若获取的对应用户信息不存在
+        if(userModel == null){
+            throw  new BusinessException(EmBusinessError.USER_NOT_EXIT);
+        }
+
         //将核心领域model对象转化为可供UI使用的viewobject
         UserVO userVO =  convertFromMode(userModel);
 
