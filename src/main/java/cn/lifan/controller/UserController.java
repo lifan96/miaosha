@@ -11,7 +11,7 @@ import cn.lifan.service.model.UserModel;
 import java.io.UnsupportedEncodingException;
 import java.lang.String;
 
-import org.apache.tomcat.util.security.MD5Encoder;
+import com.alibaba.druid.util.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,8 @@ import java.util.Random;
 
 @Controller("user")
 @RequestMapping("/user")
-@CrossOrigin(allowCredentials = "true",allowedHeaders = "*")
+@CrossOrigin(allowCredentials = "true", allowedHeaders = "*")//跨域请求
+//@CrossOrigin(origins = {"*"}, allowCredentials = "true")
 public class UserController extends BaseController{
 
     @Autowired
@@ -34,6 +35,27 @@ public class UserController extends BaseController{
     @Autowired
     private HttpServletRequest httpServletRequest;
 
+    //用户登录接口
+    @RequestMapping(value = "/login",method = {RequestMethod.POST},consumes = {CONTENT_TYPR_FORMED})
+    @ResponseBody
+    public CommonReturnType login(@RequestParam(name = "telphone")String telphone,
+                                  @RequestParam(name = "password")String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+
+        //入参校验
+        if(org.apache.commons.lang3.StringUtils.isEmpty(telphone)
+                || StringUtils.isEmpty(password)){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        //用户登录服务，用来校验用户登录是否合法
+        UserModel userModel = userService.validateLogin(telphone, this.EncodeByMd5(password));
+
+        //将登录凭证加入到用户登陆成功的session内
+        this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
+        this.httpServletRequest.getSession().setAttribute("LOGIN_USER",userModel);
+
+        return CommonReturnType.create(null);
+    }
 
 
     //用户注册接口
@@ -47,7 +69,7 @@ public class UserController extends BaseController{
                                       @RequestParam(name = "password")String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
         //验证手机号和对应的otpCode相符合
         String inSessionOtpCode = (String) this.httpServletRequest.getSession().getAttribute(telphone);
-        if(com.alibaba.druid.util.StringUtils.equals(otpCode,inSessionOtpCode)){
+        if(!StringUtils.equals(otpCode,inSessionOtpCode)){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"短信验证码不符合");
         }
 
