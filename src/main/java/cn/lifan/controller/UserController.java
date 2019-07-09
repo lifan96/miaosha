@@ -125,8 +125,7 @@ public class UserController extends BaseController{
 
         //若获取的对应用户信息不存在
         if(userModel == null){
-            userModel.setEncrptPassword("123");
-            //throw  new BusinessException(EmBusinessError.USER_NOT_EXIT);
+            throw  new BusinessException(EmBusinessError.USER_NOT_EXIT);
         }
 
         //将核心领域model对象转化为可供UI使用的viewobject
