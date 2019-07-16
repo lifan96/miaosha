@@ -7,9 +7,11 @@ import cn.lifan.service.model.PromoModel;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+@Service
 public class PromoServiceImpl implements PromoService {
 
     @Autowired
@@ -18,7 +20,7 @@ public class PromoServiceImpl implements PromoService {
     @Override
     public PromoModel getPromoByItemId(Integer itemId) {
         //获取对应商品的秒杀信息
-        PromoDo promoDo = promoDoMapper.selectByItemId(itemId);
+        PromoDo promoDo = promoDoMapper.getPromoByItemId(itemId);
 
         //dataobject -> model
         PromoModel promoModel = concertFromDataObject(promoDo);

@@ -23,7 +23,7 @@
     id, promo_name, start_date, end_date,item_id, promo_item_price
   </sql>
 
-  <select id="selectByItemId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="getPromoByItemId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from promo
