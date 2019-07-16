@@ -7,7 +7,9 @@ import cn.lifan.dataobject.ItemStockDO;
 import cn.lifan.error.BusinessException;
 import cn.lifan.error.EmBusinessError;
 import cn.lifan.service.ItemService;
+import cn.lifan.service.PromoService;
 import cn.lifan.service.model.ItemModel;
+import cn.lifan.service.model.PromoModel;
 import cn.lifan.validator.ValidationResult;
 import cn.lifan.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
@@ -32,6 +34,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemStockDOMapper itemStockDOMapper;
+
+    @Autowired
+    private PromoService promoService;
 
     private ItemDO convertItemDoFromItemModel(ItemModel itemModel){
         if(itemModel == null){
@@ -107,6 +112,12 @@ public class ItemServiceImpl implements ItemService {
 
         //将dataobject->model
         ItemModel itemModel = convertModelFromDataObject(itemDO,itemStockDO);
+
+        //获取活动商品信息
+        PromoModel promodel = promoService.getPromoByItemId(itemModel.getId());
+        if(promodel != null && promodel.getStatus().intValue() != 3){
+            itemModel.setPromoModel(promodel);
+        }
         return itemModel;
     }
 
