@@ -17,4 +17,8 @@ public interface  ItemService {
 
     //库存扣减
     boolean decreaseStock(Integer itemId,Integer amount) throws BusinessException;
+
+
+    //商品销量增加
+    void increaseSales(Integer itemID,Integer amount) throws BusinessException;
 }

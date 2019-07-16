@@ -14,12 +14,15 @@ import cn.lifan.service.model.OrderModel;
 import cn.lifan.service.model.UserModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Service
 public class OrderServiceImpl implements OrderService{
     @Autowired
     private ItemService itemService;
@@ -64,18 +67,21 @@ public class OrderServiceImpl implements OrderService{
         orderModel.setOrderPrice(itemModel.getPrice().multiply(new BigDecimal(amount)));
 
         //生成交易流水号，订单号
-
+        orderModel.setId(generateOrderNo());
         OrderDO orderDO = convertFromOrderModel(orderModel);
         orderDOMapper.insertSelective(orderDO);
-        //4.返回前端
 
-        return null;
+        //加上商品的销量
+        itemService.increaseSales(itemId,amount);
+        //4.返回前端
+        return orderModel;
     }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private String generateOrderNo(){
         //订单号有16位
         StringBuilder stringBuilder = new StringBuilder();
         //前8位为时间信息，年月日
-        LocalDateTime now = new LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
         String nowDate = now.format(DateTimeFormatter.ISO_DATE).replace("-","");
         stringBuilder.append(nowDate);
 
@@ -86,9 +92,17 @@ public class OrderServiceImpl implements OrderService{
 
         sequence = sequenceDO.getCurrentValue();
         sequenceDO.setCurrentValue(sequenceDO.getCurrentValue() + sequenceDO.getStep());
-        sequenceDOMapper.
+        sequenceDOMapper.updateByPrimaryKeySelective(sequenceDO);
+        String sequenceStr = String.valueOf(sequence);
+        for (int i=0;i<6-sequenceStr.length();i++){
+            stringBuilder.append(0);
+        }
+        stringBuilder.append(sequenceStr);
+
+
         //最后2位为分库分表位
         stringBuilder.append("00");
+        return stringBuilder.toString();
     }
 
     private OrderDO convertFromOrderModel(OrderModel orderModel){
@@ -97,6 +111,8 @@ public class OrderServiceImpl implements OrderService{
         }
         OrderDO orderDO = new OrderDO();
         BeanUtils.copyProperties(orderModel,orderDO);
+        orderDO.setItemPrice(orderModel.getItemPrice().doubleValue());
+        orderDO.setOrderPrice(orderModel.getOrderPrice().doubleValue());
         return orderDO;
     }
 }

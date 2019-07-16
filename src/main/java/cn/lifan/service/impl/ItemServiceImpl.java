@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,13 +82,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemModel> listItem() {
-        List<ItemDO> itemDOList = itemDOMapper.listItem();
+            List<ItemDO> itemDOList = itemDOMapper.listItem();
+
         List<ItemModel> itemModelList = itemDOList.stream().map(itemDO -> {
             ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
             ItemModel itemModel = this.convertModelFromDataObject(itemDO,itemStockDO);
             return itemModel;
         }).collect(Collectors.toList());
+
         return itemModelList;
+
     }
 
     @Override
@@ -117,6 +121,12 @@ public class ItemServiceImpl implements ItemService {
             //更新库存失败
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public void increaseSales(Integer itemId, Integer amount) throws BusinessException {
+        itemDOMapper.increaseSales(itemId,amount);
     }
 
     private ItemModel convertModelFromDataObject(ItemDO itemDO,ItemStockDO itemStockDO){
